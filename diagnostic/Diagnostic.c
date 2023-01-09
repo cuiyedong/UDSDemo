@@ -285,8 +285,8 @@ static uint32_t TesterPhyID1;
 static uint32_t TesterFunID1;
 static uint32_t EcuID1;
 static uint32_t EcuID;
-static uint8_t N_Ta;
-static uint8_t N_Sa;
+static uint8_t N_Ta;  //ecuId l8
+static uint8_t N_Sa;  //ecuId h8
 static uint8_t SessionSupport;//bit0: default session 01 support
 						   //bit1: program session 02 support
 						   //bit2: extended session 03 support
@@ -311,7 +311,7 @@ static bool WaitConfirmBeforeJump = FALSE;				//
 static bool WaitConfirmBeforeErase = FALSE;				//擦除前等待78负反馈的确认信息
 /*========================about program================================*/
 
-/*========================about DTC and DIDs================================*/	
+/*========================about DTC and DIDs================================*/
 #if USE_MALLOC
 static DTCNode* DTCHeader;
 static DIDNode* DIDHeader;
@@ -376,7 +376,7 @@ static uint8_t TesterPresentSuppport;//posresonpse supress supported
 #define Service85SupressSupported()   ((TesterPresentSuppport & 0x02) != 0)
 /*========================about tester present===============================*/
 
-/*========================about commulication control===============================*/	
+/*========================about commulication control===============================*/
 
 static uint8_t CommTypeSupport;//bit0:00 sub function supported
 							//bit1:01 sub function supported
@@ -395,7 +395,7 @@ static uint8_t CommTypeSupport;//bit0:00 sub function supported
 #define Service28Type03Suppoted() ((CommTypeSupport & 0x40) != 0)
 #define Service28SupressSupported() ((CommTypeSupport & 0x80) != 0)
 static CommCallBack commCallBack;
-/*========================about commulication control===============================*/	
+/*========================about commulication control===============================*/
 
 /*========================about factory mode use ===============================*/
 void Diagnostic_DTCDefaultValue(void);
@@ -486,7 +486,7 @@ bool InitSetSessionSupportAndSecurityAccess(bool support ,uint8_t service,uint8_
 			ServiceList[i].PHYExtendedSession_Security = PHYExtendedSession_Security;
 			ServiceList[i].PHYProgramSeesion_Security = PHYProgramSeesion_Security;
 			ServiceList[i].support = support;
-			return TRUE;	
+			return TRUE;
 		}
 	}
 	return FALSE;
@@ -744,7 +744,7 @@ void InitSetCurrentSessionDID(uint16_t m_DID)
 
 
 /************set netwrok layer parameters********/
-void Diagnostic_SetNLParam(uint8_t TimeAs, uint8_t TimeBs, uint8_t TimeCr, uint8_t TimeAr, uint8_t TimeBr, uint8_t TimeCs, 
+void Diagnostic_SetNLParam(uint8_t TimeAs, uint8_t TimeBs, uint8_t TimeCr, uint8_t TimeAr, uint8_t TimeBr, uint8_t TimeCs,
 	uint8_t BlockSize, uint8_t m_STmin, uint8_t FillData)
 {
 	NetworkLayer_SetParam(TimeAs , TimeBs , TimeCr , TimeAr , TimeBr , TimeCs , BlockSize , m_STmin , HALF_DUPLEX , DIAGNOSTIC , N_Sa ,  N_Ta , PHYSICAL , 0 , FillData);
@@ -763,7 +763,7 @@ void Diagnostic_Init(uint32_t requestId, uint32_t responseId, uint32_t funReques
 	TesterPhyID = requestId;
 	EcuID = responseId;
 	TesterFunID = funRequestId;
-	
+
 	N_Ta = (uint8_t)EcuID;
 	N_Sa = (uint8_t)(EcuID >> 8);
 	NetworkLayer_InitParam(TesterPhyID, TesterFunID , EcuID , sendFun);
@@ -771,14 +771,14 @@ void Diagnostic_Init(uint32_t requestId, uint32_t responseId, uint32_t funReques
 
 	P2CanServerMax = p2CanServerMax;
 	P2ECanServerMax = p2ECanServerMax;
-	
+
 	EnableDTCDetect = TRUE;
 	SaveDTCInBlock = FALSE;
 	DM1DTCNumber = 0;
 	HighVoltage = FALSE;
 	ResponsePending = FALSE;
 	m_CurrSessionType = ECU_DEFAULT_SESSION;
-	
+
 	WaitConfirmBeforeJump = FALSE;
 	WaitConfimBeforeReset = FALSE;
 	SessionSupport = 0;
@@ -801,7 +801,6 @@ void Diagnostic_Init(uint32_t requestId, uint32_t responseId, uint32_t funReques
 	EEpromUsed = 0;
 	memset(UnlockList, 0 ,sizeof(UnlockList));
 	Diagnostic_EEProm_Init();
-
 }
 /*========interface for application layer setting diagnostic parameters==============*/
 
@@ -835,7 +834,7 @@ void GotoSession(SessionType session)
 		{
 			commCallBack(0x00, 0x03);
 		}
-		
+
 		/***********when s3 timeout,session change, DTC enable***********/
 		EnableDTCDetect = TRUE;
 	}
@@ -881,7 +880,7 @@ void Service10Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 			SubFunction = *(MessageData + 1);
 			suppressPosRspMsgIndicationBit = 0;
 		}
-		
+
 		switch(SubFunction)/* get sub-function parameter value without bit 7 */
 		{
 			case ECU_DEFAULT_SESSION: /* test if sub-function parameter value is supported */
@@ -921,7 +920,7 @@ void Service10Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 				{
 					if(m_CurrSessionType == ECU_EXTENED_SESSION)
 					{
-						
+
 					}
 					else
 					{
@@ -941,7 +940,7 @@ void Service10Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 	{
 		m_NRC = IMLOIF;
 	}
-	
+
 	if ( (suppressPosRspMsgIndicationBit) && (m_NRC == 0x00) && (ResponsePending == FALSE))
 	{
 		suppressResponse = TRUE; /* flag to NOT send a positive response message */
@@ -977,7 +976,7 @@ void Service11Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 			m_EcuResetType = SubFunction;
 			suppressPosRspMsgIndicationBit = 0;
 		}
-		
+
 		switch(SubFunction)/* get sub-function parameter value without bit 7 */
 		{
 			case HARD_RESET:
@@ -1028,14 +1027,14 @@ void Service11Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 	{
 		m_NRC = IMLOIF;
 	}
-	
+
 	if ( (suppressPosRspMsgIndicationBit) && (m_NRC == 0x00) && (ResponsePending == FALSE))
 	{
 		suppressResponse = TRUE; /* flag to NOT send a positive response message */
 	}
 	else
 	{
-		suppressResponse = FALSE; /* flag to send the response message */		
+		suppressResponse = FALSE; /* flag to send the response message */
 		DiagnosticBuffTX[0] = CurrentService + 0x40;
 		DiagnosticBuffTX[1] = SubFunction;
 		ResponseLength = 2;
@@ -1124,7 +1123,7 @@ void Service27Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 				index++;
 			}
 		}
-		
+
 		if(subFunctionExist && subFunctionSupInSession)//sub function check ok
 		{
 			if(UnlockList[index].seedID == SubFunction)//request seed
@@ -1154,7 +1153,7 @@ void Service27Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 						DiagnosticBuffTX[3] = Seed[1];
 						if(UnlockList[index].KeySize == 2)
 						{
-							
+
 						}
 						else if(UnlockList[index].KeySize == 4)
 						{
@@ -1176,7 +1175,7 @@ void Service27Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 				{
 					if(m_UnlockStep == WAIT_KEY)
 					{
-						//uint32_t key1 = UnlockList[index].UnlockFunction(*(uint32_t*)Seed); 
+						//uint32_t key1 = UnlockList[index].UnlockFunction(*(uint32_t*)Seed);
 						*((uint32_t*)key) = UnlockList[index].UnlockFunction(*(uint32_t*)Seed);
 						Diagnostic_EEProm_Read(UnlockList[index].FaultCounterAddr, 1 ,&UnlockList[index].FaultCounter);
 						if(((key[0] == *(MessageData + 2) && key[1] == *(MessageData + 3)) && UnlockList[index].KeySize == 2) ||
@@ -1189,7 +1188,7 @@ void Service27Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 							DiagnosticBuffTX[1] = SubFunction;
 							ResponseLength = 2;
 						}
-						else 
+						else
 						{
 							UnlockList[index].FaultCounter++;
 							if(UnlockList[index].FaultCounter >= 3)
@@ -1204,7 +1203,7 @@ void Service27Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 								m_UnlockStep = WAIT_SEED_REQ;
 							}
 						}
-						Diagnostic_EEProm_Write(UnlockList[index].FaultCounterAddr, 1 ,&UnlockList[index].FaultCounter);					
+						Diagnostic_EEProm_Write(UnlockList[index].FaultCounterAddr, 1 ,&UnlockList[index].FaultCounter);
 					}
 					else if(m_UnlockStep == WAIT_DELAY)
 					{
@@ -1241,7 +1240,7 @@ void Service27Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 	{
 		m_NRC = IMLOIF;
 	}
-	
+
 	if ( (suppressPosRspMsgIndicationBit) && (m_NRC == 0x00) && (ResponsePending == FALSE))
 	{
 		suppressResponse = TRUE; /* flag to NOT send a positive response message */
@@ -1272,7 +1271,7 @@ void Service28Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 			suppressPosRspMsgIndicationBit = 0;
 		}
 		ControlParam = *(MessageData + 2);
-		
+
 		switch(SubFunction)/* get sub-function parameter value without bit 7 */
 		{
 			case ERXTX:
@@ -1310,7 +1309,7 @@ void Service28Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 			default:
 				m_NRC = SFNS; /* NRC 0x12: sub-functionNotSupported */
 		}
-		
+
 		if(m_NRC == 0)
 		{
 			#if 1
@@ -1345,13 +1344,13 @@ void Service28Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 			}
 			#endif
 		}
-		
+
 	}
 	else
 	{
 		m_NRC = IMLOIF;
 	}
-	
+
 	if ( (suppressPosRspMsgIndicationBit) && (m_NRC == 0x00) && (ResponsePending == FALSE))
 	{
 		suppressResponse = TRUE; /* flag to NOT send a positive response message */
@@ -1390,7 +1389,7 @@ void Service3EHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 			SubFunction = *(MessageData + 1);
 			suppressPosRspMsgIndicationBit = 0;
 		}
-		
+
 		if(SubFunction != 0)
 		{
 			m_NRC = SFNS;
@@ -1406,7 +1405,7 @@ void Service3EHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 	{
 		m_NRC = IMLOIF;
 	}
-	
+
 	if ( (suppressPosRspMsgIndicationBit) && (m_NRC == 0x00) && (ResponsePending == FALSE))
 	{
 		suppressResponse = TRUE; /* flag to NOT send a positive response message */
@@ -1419,12 +1418,12 @@ void Service3EHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 
 void Service83Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 void Service84Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 void Service85Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
@@ -1444,7 +1443,7 @@ void Service85Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 			SubFunction = *(MessageData + 1);
 			suppressPosRspMsgIndicationBit = 0;
 		}
-		
+
 		switch(SubFunction)/* get sub-function parameter value without bit 7 */
 		{
 			case 0x01:
@@ -1471,7 +1470,7 @@ void Service85Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 	{
 		m_NRC = IMLOIF;
 	}
-	
+
 	if ( (suppressPosRspMsgIndicationBit) && (m_NRC == 0x00) && (ResponsePending == FALSE))
 	{
 		suppressResponse = TRUE; /* flag to NOT send a positive response message */
@@ -1484,12 +1483,12 @@ void Service85Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 
 void Service86Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 void Service87Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 DIDNode* SearchDidNode(uint16_t DID)
@@ -1545,7 +1544,7 @@ void Service22Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 				DiagnosticBuffTX[1] = *(MessageData + 1);
 				DiagnosticBuffTX[2] = *(MessageData + 2);
 				memcpy(DiagnosticBuffTX + 3 , didNode->dataPointer ,didNode->dataLength);
-				
+
 				ResponseLength = didNode->dataLength + 3;
 			}
 		}
@@ -1589,22 +1588,22 @@ void Service22Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 
 void Service23Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 void Service24Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 void Service2AHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 void Service2CHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 
@@ -1677,7 +1676,7 @@ void Service2EHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 					m_NRC = ROOR;//this DID maybe supported by 22 service but not supported by 2E service
 				}
 			}
-			else 
+			else
 			{
 				if(didNode->dataLength + 3 == length)
 				{
@@ -1705,7 +1704,7 @@ void Service2EHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 	{
 		m_NRC = IMLOIF;
 	}
-	
+
 	if ( (suppressPosRspMsgIndicationBit) && (m_NRC == 0x00) && (ResponsePending == FALSE))
 	{
 		suppressResponse = TRUE; /* flag to NOT send a positive response message */
@@ -1719,7 +1718,7 @@ void Service2EHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 
 void Service3DHandle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 bool SearchDTCGroup(uint32_t group)
@@ -1739,9 +1738,9 @@ bool SearchDTCGroup(uint32_t group)
 		}
 	}
 	return FALSE;
-	
+
 	#else
-	
+
 	uint8_t i;
 	for(i = 0; i < DTCGroupAdded; i++)
 	{
@@ -1761,7 +1760,7 @@ void Service14Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 	if(length == 4)
 	{
 		uint32_t Group = ((*(MessageData + 1) << 16) + (*(MessageData + 2) << 8) + *(MessageData + 3)) & 0xFFFFFF;
-		
+
 		if(SearchDTCGroup(Group))//14229-1 page 183,send pos even if no DTCS are stored
 		{
 			DiagnosticBuffTX[0] = CurrentService + 0x40;
@@ -1792,7 +1791,7 @@ void SearchDTCByMaskAndFillResponse(uint8_t mask)
 			DiagnosticBuffTX[ResponseLength++] =  (uint8_t)(tmpNode->DTCCode);
 			DiagnosticBuffTX[ResponseLength++] =  (uint8_t)(tmpNode->DTCStatus.DTCStatusByte & DtcAvailibaleMask);
 		}
-		tmpNode = tmpNode->next;		
+		tmpNode = tmpNode->next;
 	}
 	#else
 	uint8_t i;
@@ -1819,7 +1818,7 @@ void FillAllDTCResponse()
 		DiagnosticBuffTX[ResponseLength++] =  (uint8_t)(tmpNode->DTCCode >> 8);
 		DiagnosticBuffTX[ResponseLength++] =  (uint8_t)(tmpNode->DTCCode);
 		DiagnosticBuffTX[ResponseLength++] =  (uint8_t)(tmpNode->DTCStatus.DTCStatusByte & DtcAvailibaleMask);
-		tmpNode = tmpNode->next;		
+		tmpNode = tmpNode->next;
 	}
 	#else
 	uint8_t i;
@@ -1844,7 +1843,7 @@ uint16_t GetDTCNumberByMask(uint8_t mask)
 		{
 			number++;
 		}
-		tmpNode = tmpNode->next;		
+		tmpNode = tmpNode->next;
 	}
 	return number;
 	#else
@@ -1869,7 +1868,7 @@ DTCNode* GetDTCNodeByCode(uint32_t dtcCode)
 	#else
 	uint8_t i;
 	for(i = 0 ; i < DTCAdded;i++)
-	{	
+	{
 		if((DTCS[i].DTCCode & 0xFFFFFF) == (dtcCode & 0xFFFFFF))
 		{
 			return DTCS+i;
@@ -2037,7 +2036,7 @@ void Service19Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 							DiagnosticBuffTX[4]  = (uint8_t)(tempNode->DTCCode);
 							DiagnosticBuffTX[5]  = (tempNode->DTCStatus.DTCStatusByte) & DtcAvailibaleMask;
 							ResponseLength = 6;
-							
+
 							if(DataRecordNumber == 0xFF)
 							{
 								if(AgingCounterRecord != 0)
@@ -2045,7 +2044,7 @@ void Service19Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 									DiagnosticBuffTX[ResponseLength++] = AgingCounterRecord;
 									DiagnosticBuffTX[ResponseLength++] = tempNode->OldCounter;
 								}
-								
+
 								if(AgedCounterRecord != 0)
 								{
 									DiagnosticBuffTX[ResponseLength++] = AgedCounterRecord;
@@ -2128,7 +2127,7 @@ void Service19Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 	{
 		m_NRC = IMLOIF;
 	}
-	
+
 	if ( (suppressPosRspMsgIndicationBit) && (m_NRC == 0x00) && (ResponsePending == FALSE))
 	{
 		suppressResponse = TRUE; /* flag to NOT send a positive response message */
@@ -2234,7 +2233,7 @@ void Service31Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 				}
 				else
 				{
-					ServiceNegReponse(ServiceName,CNC);//not in bootloader 
+					ServiceNegReponse(ServiceName,CNC);//not in bootloader
 				}
 			}
 			else
@@ -2263,7 +2262,7 @@ void Service31Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 				DiagnosticBuffTX[1] = 0x01;
 				DiagnosticBuffTX[2] = 0xFF;
 				DiagnosticBuffTX[3] = 0x01;
-				
+
 				#ifdef BOOTLOADER
 				AppCRC = CalcAppCanCRC();//CalcAppCRC();
 				RxCRC = (*(MessageData + 4) << 24) + (*(MessageData + 5) << 16) + (*(MessageData + 6) << 8) + *(MessageData + 7);
@@ -2329,7 +2328,7 @@ void Service34Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 						WriteAppLength(ProgramLength);
 						GlobalDTCControlParam.DataBits.Downloading = TRUE;
 						m_BlockIndex = 0;
-						
+
 						DiagnosticBuffTX[0] = 0x74;
 						DiagnosticBuffTX[1] = 0x20;
 						DiagnosticBuffTX[2] =  (MAX_DOWNLOADING_BUF >> 8) & 0xFF;
@@ -2344,7 +2343,7 @@ void Service34Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 				}
 				else
 				{
-					ServiceNegReponse(ServiceName,UDNA);//not in bootloader 
+					ServiceNegReponse(ServiceName,UDNA);//not in bootloader
 				}
 			}
 			else
@@ -2366,7 +2365,7 @@ void Service34Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 
 void Service35Handle(uint16_t length, uint8_t *MessageData)
 {
-	
+
 }
 
 void Service36Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
@@ -2448,14 +2447,14 @@ void Service37Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 				ProgramAddress = 0;
 				ProgramLength = 0;
 				ProgramLengthComplete = 0;
-				
+
 				m_BlockIndex = 0;
 				DiagnosticBuffTX[0] = 0x77;
 				N_USData_request(DIAGNOSTIC , N_Sa ,  N_Ta , PHYSICAL , 0 , DiagnosticBuffTX , 1);
 			}
 			else
 			{
-				ServiceNegReponse(ServiceName,CNC);//not in bootloader 
+				ServiceNegReponse(ServiceName,CNC);//not in bootloader
 			}
 		}
 		else
@@ -2474,7 +2473,7 @@ void Service37Handle(uint8_t N_TAType, uint16_t length, uint8_t *MessageData)
 void DTC_Handler(void* DTCCodePtr)
 {
 	DTCCode* DTC = (DTCCode*)DTCCodePtr;
-	
+
 	if(DTC->DetectFunction() == TRUE)
 	{
 		if(DTC->DetectCounter < 0)//关键点b
@@ -2485,7 +2484,7 @@ void DTC_Handler(void* DTCCodePtr)
 		{
 			DTC->DetectCounter += 2;
 		}
-		
+
 		if(DTC->DetectCounter >= DTC->DetectValidTimes)//关键点c
 		{
 			if(DTC->DTCStatus.DTCbit.TestFailed != 1 || DTC->DTCStatus.DTCbit.TestFailedThisMonitoringCycle == 0)
@@ -2495,7 +2494,7 @@ void DTC_Handler(void* DTCCodePtr)
 					DTC->FaultOccurrences++;
 				}
 				DTC->OldCounter = 0;
-				
+
 				DTC->DTCStatus.DTCbit.TestFailed = 1;//测试失败
 				DTC->DTCStatus.DTCbit.ConfirmedDTC = 1;//已确认的诊断故障，关键点e
 				DTC->DTCStatus.DTCbit.TestFailedThisMonitoringCycle = 1;//本次操作循环测试失败
@@ -2534,7 +2533,7 @@ void Diagnostic_ReadDTCPositiveResponse(uint8_t DTCSubFunction,uint8_t DTCStatau
 				DTCCounter++;
 			}
 		}
-		
+
 		DiagnosticBuffTX[0] = 0x59;
 		DiagnosticBuffTX[1] = DTCSubFunction;
 		DiagnosticBuffTX[2] = DTCStatausMask;
@@ -2597,7 +2596,7 @@ void Diagnostic_ServiceHandle(uint8_t N_SA , uint8_t N_TA , uint8_t N_TAtype , u
 	uint8_t DataIndex;
 	ValidSid = FALSE;
 	ServiceIndex = 0;
-	CurrentService = MessageData[0];	
+	CurrentService = MessageData[0];
 	#if 0
 	printf("rx[");
 	for(DataIndex = 0; DataIndex < length; DataIndex++)
@@ -2625,7 +2624,7 @@ void Diagnostic_ServiceHandle(uint8_t N_SA , uint8_t N_TA , uint8_t N_TAtype , u
 			ServiceIndex++;
 		}
 	}
-	
+
 	if(ValidSid == TRUE)
 	{
 		if(N_TAtype == PHYSICAL)
@@ -2791,7 +2790,7 @@ void Diagnostic_MainProc(void)
 	{
 		NetworkNotification temp = PullIndication();
 		rxId = ((temp.N_SA << 8) + temp.N_TA);
-		
+
 		if(temp.NotificationType == INDICATION)
 		{
 			uint8_t RequestEquipment = 0xFF;
@@ -2807,7 +2806,7 @@ void Diagnostic_MainProc(void)
 				N_Ta = (uint8_t)EcuID1;
 				N_Sa = (uint8_t)(EcuID1 >> 8);
 			}
-		
+
 			if(RequestEquipment == 0 || RequestEquipment == 1)
 			{
 				if(temp.N_Resut == N_OK ||temp.N_Resut == N_UNEXP_PDU)
@@ -2841,7 +2840,7 @@ void Diagnostic_MainProc(void)
 						}
 					}
 
-					
+
 					if(m_CurrSessionType  != ECU_DEFAULT_SESSION)
 					{
 						DiagTimer_Set(&S3serverTimer, 5000);
@@ -2855,7 +2854,7 @@ void Diagnostic_MainProc(void)
 			{
 				if(WaitConfirmBeforeJump == TRUE)
 				{
-					
+
 				}
 				else if(WaitConfirmBeforeErase == TRUE)
 				{
@@ -2941,7 +2940,7 @@ void Diagnostic_TimeProc(void)
 		}
 	}
 
-	
+
 	if(ResponsePending == TRUE && WaitConfirmBeforeJump == FALSE)
 	{
 		ResponsePending = FALSE;
@@ -2972,11 +2971,11 @@ void Diagnostic_TimeProc(void)
 				}
 			}
 			TPCMRequestBAM(DM1DTCNumber * 8, 0xFFCA00 , J1939BufTX);
-			DM1DTCNumber = 0;				
+			DM1DTCNumber = 0;
 		}
 	}
 	#endif
-	
+
 	#if 0
 	if(GlobalDTCControlParam.DataBits.EnableDTCDetect == TRUE)
 	{
@@ -3022,7 +3021,7 @@ void DtcHandle(DTCNode* DtcNode)
 	{
 		CurrentResult = PASSED;
 	}
-	
+
 	if(CurrentResult == PASSED)
 	{
 		if(DtcNode->DTCStatus.DTCbit.TestNotCompleteThisMonitoringCycle == 1)
@@ -3085,7 +3084,7 @@ void DtcHandle(DTCNode* DtcNode)
 			#endif
 		}
 		DtcNode->DTCStatus.DTCbit.PendingDTC = 1;//未确认的诊断故障码，14229-1-Figure D.9-5
-		DtcNode->DTCStatus.DTCbit.TestFailedSinceLastClear = 1;//自上次清除后测试失败14229-1-Figure D.9-6	
+		DtcNode->DTCStatus.DTCbit.TestFailedSinceLastClear = 1;//自上次清除后测试失败14229-1-Figure D.9-6
 		DtcNode->OldCounter == 0;
 
 		#if USE_J1939_DTC
@@ -3100,7 +3099,7 @@ void DtcHandle(DTCNode* DtcNode)
 	}
 	else
 	{
-		
+
 	}
 
 	if(DtcNode->DTCStatus.DTCbit.TestFailedThisMonitoringCycle == 0 && DtcNode->DTCStatus.DTCbit.TestNotCompleteThisMonitoringCycle == 0)//iso14229-1 Frigure D.4
@@ -3124,7 +3123,7 @@ void Diagnostic_DTCProc(void)
 			}
 			#else
 			uint8_t i;
-			DM1DTCNumber = 0;   
+			DM1DTCNumber = 0;
 			for(i = 0 ; i < DTCAdded ; i++)
 			{
 				DtcHandle(DTCS + i);
@@ -3261,7 +3260,7 @@ void Diagnostic_SaveAllDTC(void)
 		{
 			DTCS[i].DTCStatus.DTCbit.PendingDTC = 0;
 		}
-	
+
 		if(DTCS[i].DTCStatus.DTCbit.TestFailedThisMonitoringCycle == 0  && DTCS[i].DTCStatus.DTCbit.ConfirmedDTC == 1)
 		{
 			if(DTCS[i].OldCounter >= 40)//故障码老化机制
@@ -3364,7 +3363,7 @@ void Diagnostic_BindingSnapshot(void)
 	{
 		SnapshotDataLength += SnapShots[i].dataLength;
 	}
-	
+
 	for(i = 0 ;  i < MAX_DTC_NUMBER ; i ++)
 	{
 		DTCS[i].SnapShotEEpromAddr = ModuleEEpromStartAddr + EEpromUsed + SnapshotDataLength * i;

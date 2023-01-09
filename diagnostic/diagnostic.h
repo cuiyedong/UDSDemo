@@ -82,12 +82,12 @@ typedef uint8_t (*SendCANFun)(uint32_t ID, uint8_t *array, uint8_t length, uint8
 #define   USE_MALLOC			0
 #define	USE_J1939_DTC		0
 
-/*======================== buf size config ================================*/	
+/*======================== buf size config ================================*/
 #define MAX_DTC_NUMBER 				35//最大DTC个数
 #define MAX_DID_NUMBER 				70//最大DID个数
 #define MAX_SNAPSHOT_NUMBER 			10//最大快照信息个数
 #define MAX_GROUP_NUMBER				5//最大DTC组个数
-/*======================== buf size config ================================*/	
+/*======================== buf size config ================================*/
 
 void Diagnostic_Init(uint32_t requestId, uint32_t responseId, uint32_t funRequestId, uint16_t EEPromStartAddr, uint16_t EEpromSize,SendCANFun sendFun,uint16_t p2CanServerMax, uint16_t p2ECanServerMax);
 void Diagnostic_Set2ndReqAndResID(uint32_t requestId1, uint32_t responseId1,uint32_t funRequestId1);

@@ -37,7 +37,7 @@ void ForceReset(){
 
 	softReset.c[0]=*(byte *)0xFFFE;
 	softReset.c[1]=*(byte *)0xFFFF;
-	softReset.vector(); 
+	softReset.vector();
 }
 
 void SystemReset(EcuResetType resetType)
@@ -62,7 +62,7 @@ void CommulicatonControl(CommulicationType type, communicationParam param)
 	bool txenable = ((type & 0x01) == 0x00);//允许发送
 	bool CtrlNmMessage = ((param & 0x02) == 0x02);//控制网络管理消息
 	bool CtrlAppMessage = ((param & 0x01) == 0x01);//控制应用报文
-	
+
 	if(CtrlNmMessage)
 	{
 		//NMSetCommulicationEnable(txenable, rxenable);
@@ -80,37 +80,37 @@ uint32_t SeedToKeyDemo(uint32_t seed)
 	return 0x12345678;//针对某一个请求的安全算法
 }
 
-byte SendFrame(VUINT32 ID, byte *array, byte length, byte priority , uint8_t rtr ,uint8_t ide) 
+byte SendFrame(VUINT32 ID, byte *array, byte length, byte priority , uint8_t rtr ,uint8_t ide)
 {
 	byte i;
 
 	CANTBSEL=CANTFLG;
-	if (CANTBSEL==0) 
+	if (CANTBSEL==0)
 	{
-		return 0;  
+		return 0;
 	}
 
 	if(ide == 1)//extend frame
 	{
-		*((VUINT8 *) (&CANTXIDR0)) = (ID >> 21); 
-		*((VUINT8 *) (&CANTXIDR1)) = 0x18 | (((ID >>13) & 0xE0) |  ((ID >> 15) & 0x07)); 
-		*((VUINT8 *) (&CANTXIDR2)) = (ID >> 7); 
-		*((VUINT8 *) (&CANTXIDR3)) = ((ID << 1) & 0xFE) | (rtr & 0x01); 
+		*((VUINT8 *) (&CANTXIDR0)) = (ID >> 21);
+		*((VUINT8 *) (&CANTXIDR1)) = 0x18 | (((ID >>13) & 0xE0) |  ((ID >> 15) & 0x07));
+		*((VUINT8 *) (&CANTXIDR2)) = (ID >> 7);
+		*((VUINT8 *) (&CANTXIDR3)) = ((ID << 1) & 0xFE) | (rtr & 0x01);
 	}
 	else//standard frame
 	{
-		*((VUINT8 *) (&CANTXIDR0)) = (ID >> 3); 
-		*((VUINT8 *) (&CANTXIDR1)) = ((ID << 5) & 0xE0) | ((rtr & 0x01) << 4) | ((ide & 0x01) << 3); 
+		*((VUINT8 *) (&CANTXIDR0)) = (ID >> 3);
+		*((VUINT8 *) (&CANTXIDR1)) = ((ID << 5) & 0xE0) | ((rtr & 0x01) << 4) | ((ide & 0x01) << 3);
 	}
 
 	for (i=0;i<length;i++)
 	{
 		*(&CANTXDSR0+i)=array[i];
-	}   
-	CANTXDLR=length;  
-	CANTXTBPR=priority; 
+	}
+	CANTXDLR=length;
+	CANTXTBPR=priority;
 
-	CANTFLG=CANTBSEL;    //发送缓冲区相应TXE位写1清除该位来通知MSCAN发送数据  
+	CANTFLG=CANTBSEL;    //发送缓冲区相应TXE位写1清除该位来通知MSCAN发送数据
 	return CANTBSEL;
 }
 
@@ -123,19 +123,19 @@ uint8_t IO9826_MixMtrCtrl;
 uint8_t IoControl_9826(uint8_t ctrl, uint8_t param) {
 	if(ctrl == 0) {
 		IO9826_MixMtrCtrl = 2;
-	} 
-	else if(ctrl == 1) 
+	}
+	else if(ctrl == 1)
 	{
 		IO9826_MixMtrCtrl = 2;
-	} else if(ctrl == 2) 
+	} else if(ctrl == 2)
 	{
 
-	}else if(ctrl == 3) 
+	}else if(ctrl == 3)
 	{
-		if(param == 0) 
+		if(param == 0)
 		{
 			IO9826_MixMtrCtrl = 0;
-		} 
+		}
 		else if(param == 1)
 		{
 			IO9826_MixMtrCtrl = 1;
@@ -195,12 +195,12 @@ ISR(Can_Rx_Interrupt)
 			canId |= ((tmp >> 5) & 0x07);
 		}
 		canDlc = CANRXDLR_DLC;
-		if (canDlc == 0) 
+		if (canDlc == 0)
 		{
 			CANRFLG_RXF = 1;
 			return ;
 		}
-		
+
 		canIde = (CANRXIDR0 >> 3) & 0x01;
 		for (tmp = 0; tmp < CANRXDLR_DLC; ++tmp)
 		{
@@ -220,7 +220,7 @@ ISR(RTI_Interrupt)
 	//      The ISR is invoked by RTIF flag. The RTIF flag is cleared
 	//      if a "1" is written to the flag in CPMUFLG register.
 	//      Example: CPMUFLG = 128;
-	
+
 	CPMUFLG_RTIF = 1; /*clear real time interrupt flag*/
 	Diagnostic_1msTimer();
 }
@@ -232,33 +232,33 @@ void Diagnostic_Init_Config(void)
 	Diagnostic_Init(0x721, 0x728 , 0x7DF, 0xA00 , 1024 , SendFrame,0x0032,0x00C8);
    	//********************************** service 10*****************************************//
    	//Diagnostic_Set2ndReqAndResID(0x18DA19F9, 0x18DAF919 , 0x18DBFFF9);
-   
+
 	InitSetSessionSupportAndSecurityAccess(TRUE,0x10,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO);
-	InitSetSessionControlParam(TRUE , TRUE , TRUE , FALSE , FALSE , TRUE);   
-   
+	InitSetSessionControlParam(TRUE , TRUE , TRUE , FALSE , FALSE , TRUE);
+
 	//********************************** service 27*****************************************//
-    
+
 	InitAddSecurityAlgorithm(LEVEL_ONE,SeedToKeyDemo,0x01,0x02, NULL ,3 , 10000, SUB_PROGRAM | SUB_EXTENDED,4);
 	InitFactorySecuriyAlgorithm();
 	//InitAddSecurityAlgorithm(LEVEL_THREE,HD10SeedToKey,0x07,0x08, NULL ,3 , 10000, SUB_PROGRAM);
 	InitSetSessionSupportAndSecurityAccess(TRUE,0x27,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO,LEVEL_UNSUPPORT,LEVEL_UNSUPPORT,LEVEL_UNSUPPORT);
-	 
+
 	//********************************** service 3E*****************************************//
-	  
+
 	InitSetSessionSupportAndSecurityAccess(TRUE,0x3E,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO);
 	InitSetTesterPresentSupress(TRUE);
 	  //********************************** service 11*****************************************//
-	 
-	 
+
+
 	InitSetSessionSupportAndSecurityAccess(TRUE,0x11,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO);
-	InitSetSysResetParam(TRUE , FALSE , FALSE , FALSE , FALSE , SystemReset , TRUE);	 
-	 
+	InitSetSysResetParam(TRUE , FALSE , FALSE , FALSE , FALSE , SystemReset , TRUE);
+
 	   //********************************** service 28*****************************************//
-	   
+
 	InitSetSessionSupportAndSecurityAccess(TRUE,0x28,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO);
-	InitSetCommControlParam(TRUE , TRUE , TRUE , TRUE , TRUE , TRUE , TRUE , CommulicatonControl , TRUE);  
+	InitSetCommControlParam(TRUE , TRUE , TRUE , TRUE , TRUE , TRUE , TRUE , CommulicatonControl , TRUE);
 	 //********************************** service 85*****************************************//
-	 
+
 	InitSetSessionSupportAndSecurityAccess(TRUE,0x85,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO);
 	InitSetDTCControlSupress(TRUE);
 	  //********************************** service 22  2E  2F*****************************************//
@@ -275,7 +275,7 @@ void Diagnostic_Init_Config(void)
 	InitSetCanDataBaseVersionDID(0x0A04);
 	InitSetCurrentSessionDID(0xF186);
 	#endif
-	 
+
 	InitSetSessionSupportAndSecurityAccess(TRUE,0x22,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO,LEVEL_ZERO);
 
 	InitSetSessionSupportAndSecurityAccess(TRUE,0x2F,LEVEL_UNSUPPORT,LEVEL_UNSUPPORT,LEVEL_ONE,LEVEL_UNSUPPORT,LEVEL_UNSUPPORT,LEVEL_UNSUPPORT);
@@ -289,8 +289,8 @@ void Diagnostic_Init_Config(void)
 	InitAddDTC(0x910223,NMGetLimpHome,10, 1 ,LEVEL_C);			//limphome
 	//********************************** service 14*****************************************//
 
-	InitSetSessionSupportAndSecurityAccess(TRUE,0x14,LEVEL_ZERO,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO,LEVEL_UNSUPPORT,LEVEL_ZERO);	 
-	InitAddDTCGroup(0x00FFFFFF); 
+	InitSetSessionSupportAndSecurityAccess(TRUE,0x14,LEVEL_ZERO,LEVEL_UNSUPPORT,LEVEL_ZERO,LEVEL_ZERO,LEVEL_UNSUPPORT,LEVEL_ZERO);
+	InitAddDTCGroup(0x00FFFFFF);
 
 	//**********************************snaptshot*****************************************//
 	InitAddDTCSnapShot(0x01 , 0x9102 , &CurrentSpeed , 2);
@@ -303,9 +303,9 @@ void Diagnostic_Init_Config(void)
 	InitSetAgedCounterRecordNumber(4);
 	InitSetOccurrenceCounterRecordNumber(1);
 	InitSetPendingCounterRecordNumber(2);
-	
+
 	Diagnostic_LoadAllData();
-	
+
 	Diagnostic_SetNLParam(70, 150, 150, 70, 70, 70, 8, 20, 0xFF);
 }
 
@@ -314,10 +314,11 @@ void main(void)
   /* Write your local variable definition here */
 
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
-  PE_low_level_init();
+  PE_low_level_init();  //芯片初始化
   /*** End of Processor Expert internal initialization.                    ***/
-	TJA1043_Can_Sel_PutVal(1);
-  	TJA1043_EN_PutVal(1);
+	TJA1043_Can_Sel_PutVal(1); //cs
+  	TJA1043_EN_PutVal(1);  //enable
+
 	Diagnostic_Init_Config();
   /* Write your code here */
 	while(1)
